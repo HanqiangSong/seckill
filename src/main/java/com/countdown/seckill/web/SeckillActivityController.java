@@ -74,7 +74,6 @@ public class SeckillActivityController {
     public String itemPage(Map<String, Object> resultMap, @PathVariable long seckillActivityId) {
         SeckillActivity seckillActivity = seckillActivityDao.querySeckillActivityById(seckillActivityId);
         SeckillCommodity seckillCommodity = seckillCommodityDao.querySeckillCommodityById(seckillActivity.getCommodityId());
-
         resultMap.put("seckillActivity", seckillActivity);
         resultMap.put("seckillCommodity", seckillCommodity);
         resultMap.put("seckillPrice", seckillActivity.getSeckillPrice());
