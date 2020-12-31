@@ -2,9 +2,11 @@ package com.countdown.seckill.db.dao;
 
 import com.countdown.seckill.db.mappers.OrderMapper;
 import com.countdown.seckill.db.po.Order;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 
+@Repository
 public class OrderDaoImpl implements OrderDao {
 
     @Resource
