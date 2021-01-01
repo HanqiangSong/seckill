@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.io.UnsupportedEncodingException;
 
 @Component
-@RocketMQMessageListener(topic = "test-gavin", consumerGroup = "conmuserGrop-jiuzhang")
+@RocketMQMessageListener(topic = "test-gavin", consumerGroup = "conmuserGrop-gavin")
 public class ConsumerListener implements RocketMQListener<MessageExt> {
     @Override
     public void onMessage(MessageExt messageExt) {
