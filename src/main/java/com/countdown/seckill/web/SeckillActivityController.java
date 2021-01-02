@@ -7,6 +7,7 @@ import com.countdown.seckill.db.po.Order;
 import com.countdown.seckill.db.po.SeckillActivity;
 import com.countdown.seckill.db.po.SeckillCommodity;
 import com.countdown.seckill.services.SeckillActivityService;
+import com.countdown.seckill.util.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -97,6 +99,9 @@ public class SeckillActivityController {
         return "add_activity";
     }
 
+
+    @Resource
+    private RedisService redisService;
     /**
      * 处理抢购请求
      * @param userId
@@ -109,6 +114,18 @@ public class SeckillActivityController {
         boolean stockValidateResult = false;
         ModelAndView modelAndView = new ModelAndView();
         try {
+
+            /*
+             * 判断用户是否在已购名单中
+             */
+            if (redisService.isInLimitMember(seckillActivityId, userId)) {
+                //提示用户已经在限购名单中，返回结果
+                modelAndView.addObject("resultInfo", "对不起，您已经在限购名单中");
+                modelAndView.setViewName("seckill_result_page");
+                return modelAndView;
+            }
+
+
             /*
              * 确认是否能够进行秒杀 */
             stockValidateResult =
@@ -119,6 +136,9 @@ public class SeckillActivityController {
                 modelAndView.addObject("resultInfo", "秒杀成功，订单创建中，订单ID:"
                         + order.getOrderNo());
                 modelAndView.addObject("orderNo", order.getOrderNo());
+
+                //添加用户到已购名单中
+                redisService.addLimitMember(seckillActivityId, userId);
             } else {
                 modelAndView.addObject("resultInfo", "对不起，商品库存不足");
             }
