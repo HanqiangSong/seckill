@@ -1,5 +1,8 @@
 package com.countdown.seckill.web;
 
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.countdown.seckill.db.dao.OrderDao;
 import com.countdown.seckill.db.dao.SeckillActivityDao;
@@ -69,10 +72,16 @@ public class SeckillActivityController {
 
     @RequestMapping("/seckills")
     public String activityList(Map<String, Object> resultMap) {
-        List<SeckillActivity> seckillActivities =
-                seckillActivityDao.querySeckillActivitysByStatus(1);
-        resultMap.put("seckillActivities", seckillActivities);
-        return "seckill_activity";
+
+        try (Entry entry = SphU.entry("seckills")) {
+            List<SeckillActivity> seckillActivities =
+                    seckillActivityDao.querySeckillActivitysByStatus(1);
+            resultMap.put("seckillActivities", seckillActivities);
+            return "seckill_activity";
+        } catch (BlockException ex) {
+            log.error("查询秒杀活动的列表被限流 "+ex.toString());
+            return "wait";
+        }
     }
 
     /**
